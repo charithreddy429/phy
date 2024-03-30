@@ -89,15 +89,21 @@ class BallSet:
 
     def update(self, dt):
         self.ke = 0
+        
         grid: list[list[int]] = [[] for i in range(self.gridDim[0] * self.gridDim[1])]
 
         for ind, i in enumerate(self.balls):
             i.update(dt)
+
             self.ke += np.dot(i.velocity, i.velocity)
+            
             grid[floor(max(min(i.position[0] // self.gridSize, self.gridDim[0]), 0) +
                        max(min(i.position[1] // self.gridSize, self.gridDim[1]), 0) * self.gridDim[0])].append(ind)
+        
+        
         for i in range(self.gridDim[0] * self.gridDim[1]):
             for j in [0, 1, -1, self.gridDim[0], -self.gridDim[0], 1 + self.gridDim[0], -1 + self.gridDim[0],
+        
                       1 - self.gridDim[0], -1 - self.gridDim[0]]:
                 if 0 <= i + j < 144:
                     self.cocell(grid[i], grid[i + j])

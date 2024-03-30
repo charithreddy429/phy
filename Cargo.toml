@@ -3,6 +3,20 @@ name = "phy"
 version = "0.1.0"
 edition = "2021"
 
+[profile.dev]
+# or [profile.release] for release builds
+# Check documentation for more options
+debug = 1
+
+[profile.dev.package.'*']
+# or [profile.release.package.'*'] for release builds
+# Check documentation for more options
+lints = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+
 [dependencies]
+rand = "0.8.4"
+nalgebra = "0.32.5"
+gl = "*"
+sdl2 = { version = "*", features = ["bundled"] }
