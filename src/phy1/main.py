@@ -1,5 +1,8 @@
 import sys
 import time
+
+import pygame
+
 import utils
 import  cvrec
 from settings import *
@@ -12,16 +15,19 @@ class App:
     def __init__(self):
         p.init()
         p.display.set_caption('Sim')
-        self.surf = p.display.set_mode(WIN_RES)
+        self.surf=pygame.Surface((WIN_RES))
+        self.window= p.display.set_mode(WIN_RES)
         self.font = p.font.Font(None, 30)
         self.clock = p.time.Clock()
         self.Sim = Simulation(self,WIN_RES)
         self.prev = time.time()
         self.out= cvrec.get_out('happy.mp4',60,(720,1280))
-
+        self.frame =0
 
     def update(self,dt):
-        self.Sim.update(dt)
+        self.frame+=1
+        self.Sim.update
+        (dt,self.frame)
         self.clock.tick(FPS)
 
     def draw(self):
@@ -43,10 +49,10 @@ class App:
             self.update(t-self.prev)
             self.draw()
             utils.debug(1/(t-self.prev),300)
+            self.window.blit(self.surf,(0,0))
             p.display.update()
             self.out.write(p.surfarray.array3d( self.surf)[:, :, ::-1])
             self.prev = t
-
 
 if __name__ == '__main__':
     app = App()

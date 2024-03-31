@@ -1,7 +1,10 @@
+import time
+
 import numpy as np
 import random
 import pygame as p
 import ball
+import utils
 
 
 class Wall:
@@ -10,14 +13,14 @@ class Wall:
     def __init__(self, surf: p.Surface, x1: float, y1: float, x2, y2,
                  thickness=5,
                  color=(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))):
-        self.stPosition = np.float64([x1, y1, 0])
-        self.edPosition = np.float64([x2, y2, 0])
+        self.stPosition = np.float64([x1, y1])
+        self.edPosition = np.float64([x2, y2])
         self.color = color
         self.thickness = thickness
         self.surf = surf
 
     def draw(self):
-        p.draw.line(self.surf, self.color, self.stPosition[0:2], self.edPosition[0:2], self.thickness)
+        p.draw.line(self.surf, self.color, self.stPosition , self.edPosition , self.thickness)
 
     def update(self,dt):
         pass
@@ -37,17 +40,17 @@ class Wall:
         wall_to_ball = b.position - self.stPosition
 
         # Calculate the perpendicular distance between the wall and the ball
-        perpendicular_distance = np.dot(wall_to_ball[0:2], wall_normal)
+        perpendicular_distance = np.dot(wall_to_ball , wall_normal)
 
         # If the perpendicular distance is less than the radius of the ball,
         # then there is a collision
         if abs(perpendicular_distance) <= b.radius:
             # Calculate the relative velocity between the ball and the wall
-            relative_velocity = np.dot(b.velocity[0:2], wall_normal[0:2])
+            relative_velocity = np.dot(b.velocity , wall_normal )
             penetration_depth = b.radius - abs(perpendicular_distance)
 
             # Move the ball out of the wall along the normal vector
-            b.position[0:2] += penetration_depth * wall_normal
+            b.position  += penetration_depth * wall_normal
             # If the relative velocity is positive, the ball is moving away from the wall
             # and no collision response is needed
             if relative_velocity > 0:
@@ -60,9 +63,63 @@ class Wall:
             impulse = impulse_magnitude * wall_normal
 
             # Apply the impulse to the ball
-            b.velocity[0:2]+= impulse
-            b.position
+            b.velocity += impulse
 
+
+class CircularWall:
+    elasticity = 1
+
+    def __init__(self, surf: p.Surface, center: np.ndarray, radius: float,
+                 thickness=5,
+                 color=(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))):
+        self.center = np.float64(center)
+        self.radius = radius
+        self.color = color
+        self.thickness = thickness
+        self.surf = surf
+
+    def draw(self):
+        p.draw.circle(self.surf, self.color, self.center.astype(int), self.radius, self.thickness)
+
+    def update(self, dt):
+        pass
+
+    def interact(self, b: ball.Ball,frame):
+        # Calculate the vector from the center of the circle to the ball
+        center_to_ball = b.position - self.center
+
+        # Calculate the distance between the center of the circle and the ball
+        distance_to_center = np.linalg.norm(center_to_ball[0:2])
+
+        # print("Distance to center:", distance_to_center)
+        # print("Sum of radii:", self.radius + b.radius)
+
+        # If the distance is less than or equal to the radius of the circle,
+        # then there is a collision
+        if distance_to_center >= self.radius - b.radius:
+            # Calculate the normalized normal vector pointing from the circle center to the ball
+            normal_vector = center_to_ball / distance_to_center
+
+            # Calculate the relative velocity between the ball and the circle
+            relative_velocity = np.dot(b.velocity[0:2], normal_vector)
+
+            # If the relative velocity is positive, the ball is moving away from the circle
+            # and no collision response is needed
+            if relative_velocity < 0:
+                return
+
+            # Calculate the impulse magnitude
+            impulse_magnitude = -(1 + self.elasticity) * relative_velocity
+
+            # Calculate the impulse
+            impulse = impulse_magnitude * normal_vector
+
+
+            b.position-=normal_vector*(distance_to_center+b.radius-self.radius)
+            # Apply the impulse to the ball
+            b.velocity += impulse
+            b.radius += 2
+            utils.append_to_file('g.txt',str(frame))
 class WallSet:
     def __init__(self, walls: list[Wall]):
         self.walls = walls
@@ -75,7 +132,7 @@ class WallSet:
         for i in self.walls:
             i.draw()
 
-    def interact(self, b: ball.BallSet):
+    def interact(self, b: ball.BallSet,frame):
         for i in self.walls:
             for j in b.balls:
-                i.interact(j)
+                i.interact(j,frame)

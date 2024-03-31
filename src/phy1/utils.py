@@ -38,3 +38,16 @@ def vector_with_magnitude(mag: float, dim: int = 2) -> np.ndarray:
     vector = normalized_vector * mag
 
     return vector
+
+def append_to_file(file_path, content):
+    """
+    Append content to a file.
+
+    Args:
+        file_path (str): The path to the file.
+        content (str): The content to be appended to the file.
+    """
+    # Open the file in append mode ('a')
+    with open(file_path, "a") as f:
+        # Write content to the file
+        f.write(content + "\n")
