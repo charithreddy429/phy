@@ -25,7 +25,7 @@ class Wall:
     def update(self,dt):
         pass
 
-    def interact(self, b: ball.Ball):
+    def interact(self, b: ball.Ball,frame):
 
         # Calculate the vector representing the wall
         wall_vector = self.edPosition - self.stPosition
@@ -70,7 +70,7 @@ class CircularWall:
     elasticity = 1
 
     def __init__(self, surf: p.Surface, center: np.ndarray, radius: float,
-                 thickness=5,
+                 thickness=0,
                  color=(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))):
         self.center = np.float64(center)
         self.radius = radius
@@ -79,8 +79,8 @@ class CircularWall:
         self.surf = surf
 
     def draw(self):
-        p.draw.circle(self.surf, self.color, self.center.astype(int), self.radius, self.thickness)
-
+        # p.draw.circle(self.surf, self.color, self.center.astype(int), self.radius, self.thickness)
+        pass
     def update(self, dt):
         pass
 
@@ -118,8 +118,8 @@ class CircularWall:
             b.position-=normal_vector*(distance_to_center+b.radius-self.radius)
             # Apply the impulse to the ball
             b.velocity += impulse
-            b.radius += 2
-            utils.append_to_file('g.txt',str(frame))
+            # b.radius += 2
+            # utils.append_to_file('g.txt',str(frame))
 class WallSet:
     def __init__(self, walls: list[Wall]):
         self.walls = walls

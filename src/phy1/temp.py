@@ -1,41 +1,59 @@
-import cv2
+# import pygame
+# import math
+#
+# def interpolate(from_value, to_value, percent):
+#     difference = to_value - from_value
+#     return from_value + (difference * percent)
+#
+# def bezier_curve(control_points, num_segments=100):
+#     curve_points = []
+#     for i in range(num_segments):
+#         t = i / num_segments
+#         xa = interpolate(control_points[0][0], control_points[1][0], t)
+#         ya = interpolate(control_points[0][1], control_points[1][1], t)
+#         xb = interpolate(control_points[1][0], control_points[2][0], t)
+#         yb = interpolate(control_points[1][1], control_points[2][1], t)
+#         x = interpolate(xa, xb, t)
+#         y = interpolate(ya, yb, t)
+#         curve_points.append((int(x), int(y)))
+#     return curve_points
+#
+# # Example usage:
+# control_points = [(100, 100), (200, 300), (400, 100)]  # Control points for the Bézier curve
+#
+# # Initialize Pygame
+# pygame.init()
+#
+# # Set up the display
+# width, height = 800, 600
+# screen = pygame.display.set_mode((width, height))
+#
+# # Define colors
+# WHITE = (255, 255, 255)
+# BLACK = (0, 0, 0)
+# RED = (255, 0, 0)
+#
+# # Main loop
+# running = True
+# while running:
+#     for event in pygame.event.get():
+#         if event.type == pygame.QUIT:
+#             running = False
+#
+#     # Clear the screen
+#     screen.fill(WHITE)
+#
+#     # Draw control points
+#     for point in control_points:
+#         pygame.draw.circle(screen, BLACK, point, 5)
+#
+#     # Draw Bézier curve
+#     curve_points = bezier_curve(control_points)
+#     pygame.draw.lines(screen, RED, False, curve_points, 2)
+#
+#     # Update the display
+#     pygame.display.flip()
+#
+# # Quit Pygame
+# pygame.quit()
 
-# Input video file path
-input_video_path = 'input/vdi-3.mp4'
-
-# Output video file path
-output_video_path = 'output/vid3.mp4'
-# Open the video file
-cap = cv2.VideoCapture(input_video_path)
-
-# Get the video's width, height, and frames per second (fps)
-width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-fps = cap.get(cv2.CAP_PROP_FPS)
-
-# Create VideoWriter object to save the rotated video
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # You can change the codec if needed
-out = cv2.VideoWriter(output_video_path, fourcc, fps, (height, width))
-
-# Read and rotate each frame
-i = 0
-while True:
-    i+=1
-    if i%2 ==0:
-        continue
-    ret, frame = cap.read()
-    if not ret:
-        break
-
-    # Rotate the frame by 90 degrees
-    rotated_frame = cv2.transpose(frame)
-    rotated_frame = cv2.flip(rotated_frame, 1)  # Flip horizontally if needed
-
-    # Write the rotated frame to the output video file
-    out.write(rotated_frame)
-
-# Release VideoCapture and VideoWriter objects
-cap.release()
-out.release()
-
-print("Video rotation complete.")

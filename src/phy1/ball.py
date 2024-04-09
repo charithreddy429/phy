@@ -58,21 +58,24 @@ class Ball:
             impulse = (-(1 + Ball.elasticity) * relative_velocity_normal) / (a.mass + b.mass) * collision_normal
 
             # Update velocities
+            print(impulse)
             a.velocity += impulse / a.mass
             b.velocity -= impulse / b.mass
             a.position -= collision_normal * (a.radius + b.radius - distance) / 2
             b.position += collision_normal * (a.radius + b.radius - distance) / 2
 
     @staticmethod
-    def gravity(balls: List['Ball'], k=400000):
+    def gravity(balls: List['Ball'], k=1e7):
         for i in range(len(balls)):
             for j in range(len(balls)):
                 if i > j:
 
                     r = balls[i].position - balls[j].position  # type: ignore
-                    force = k * (r / (np.dot(r, r) ** (3 / 2)))
-                    if f := np.dot(force, force) > 10000:
-                        force = -force / f
+                    # force = r*( k/((np.dot(r, r)-500) ** (3 / 2)) -k/ (np.dot(r, r) ** (3 / 2)))
+                    force = r*k/(np.dot(r, r)**(3/2))
+                    print(force,balls[i].velocity)
+                    if f := np.dot(force, force) > (l:=1):
+                        force = -force *l/ f
                     balls[j].force += force
                     balls[i].force -= force
 
@@ -97,8 +100,8 @@ class BallSet:
             i.update(dt)
 
             self.ke += np.dot(i.velocity, i.velocity)
-            print(n := floor(max(min(i.position[0] // self.gridSize, self.gridDim[0]), 0) +
-                             max(min(i.position[1] // self.gridSize, self.gridDim[1]), 0) * self.gridDim[0]))
+            n = floor(max(min(i.position[0] // self.gridSize, self.gridDim[0]), 0) +
+                             max(min(i.position[1] // self.gridSize, self.gridDim[1]), 0) * self.gridDim[0])
             grid[n].append(ind)
 
         for i in range(self.gridDim[0] * self.gridDim[1]):
