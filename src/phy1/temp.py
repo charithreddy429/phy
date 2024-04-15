@@ -1,41 +1,62 @@
-import cv2
+import pygame
+import numpy as np
+from scipy.interpolate import CubicSpline
 
-# Input video file path
-input_video_path = 'input/vdi-3.mp4'
+# Initialize Pygame
+pygame.init()
 
-# Output video file path
-output_video_path = 'output/vid3.mp4'
-# Open the video file
-cap = cv2.VideoCapture(input_video_path)
+# Set up the display
+width, height = 800, 600
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Soft Body Visualization")
 
-# Get the video's width, height, and frames per second (fps)
-width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-fps = cap.get(cv2.CAP_PROP_FPS)
+# Define colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
 
-# Create VideoWriter object to save the rotated video
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # You can change the codec if needed
-out = cv2.VideoWriter(output_video_path, fourcc, fps, (height, width))
+# Define data points
+points = np.array([[100, 200],
+                   [200, 300],
+                   [300, 250],
+                   [400, 350],
+                   [500, 200]])
 
-# Read and rotate each frame
-i = 0
-while True:
-    i+=1
-    if i%2 ==0:
-        continue
-    ret, frame = cap.read()
-    if not ret:
-        break
+# Compute the cubic spline interpolation
+x = points[:, 0]
+y = points[:, 1]
+cs = CubicSpline(x, y)
 
-    # Rotate the frame by 90 degrees
-    rotated_frame = cv2.transpose(frame)
-    rotated_frame = cv2.flip(rotated_frame, 1)  # Flip horizontally if needed
+# Main loop
+running = True
+clock = pygame.time.Clock()
 
-    # Write the rotated frame to the output video file
-    out.write(rotated_frame)
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
 
-# Release VideoCapture and VideoWriter objects
-cap.release()
-out.release()
+    # Clear the screen
+    screen.fill(WHITE)
 
-print("Video rotation complete.")
+    # Draw original data points
+    for point in points:
+        pygame.draw.circle(screen, BLACK, (int(point[0]), int(point[1])), 5)
+
+    # Draw the interpolated curve
+    t = np.linspace(0, len(points) - 1, 100)
+    curve_points = np.column_stack((cs(t),)).astype(int)
+
+    # Check if curve_points has more than one column
+    print(curve_points)
+    curve_points = [(point[0], point[1]) for point in curve_points[:,0]]  # Convert to list of (x, y) tuples
+    pygame.draw.lines(screen, RED, False, curve_points, 10)
+
+    # Update the display
+    pygame.display.flip()
+
+    # Cap the frame rate
+    clock.tick(60)
+
+# Quit Pygame
+pygame.quit()
