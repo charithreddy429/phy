@@ -10,12 +10,12 @@ class Ball:
     elasticity = 1
 
     def __init__(self, surf: p.Surface, x: float, y: float, velocity,
-                 radius=10,color = None):
+                 radius=10,color = None,mass=1):
         self.position = np.float64([x, y])
         self.velocity = velocity  # type: ignore
         self.radius = radius
         self.force = np.float64([0.0, 0.0])  # type: ignore
-        self.mass = 1
+        self.mass = mass
         self.path = []
         self.surf = surf
         if color is not None:
@@ -65,7 +65,7 @@ class Ball:
             b.position += collision_normal * (a.radius + b.radius - distance) / 2
 
     @staticmethod
-    def gravity(balls: List['Ball'], k=1e7):
+    def gravity(balls: List['Ball'], k=1e5):
         for i in range(len(balls)):
             for j in range(len(balls)):
                 if i > j:
@@ -73,9 +73,10 @@ class Ball:
                     r = balls[i].position - balls[j].position  # type: ignore
                     # force = r*( k/((np.dot(r, r)-500) ** (3 / 2)) -k/ (np.dot(r, r) ** (3 / 2)))
                     force = r*k/(np.dot(r, r)**(3/2))
-                    print(force,balls[i].velocity)
-                    if f := np.dot(force, force) > (l:=1):
-                        force = -force *l/ f
+                    l= 1e4
+                    f = np.dot(force, force)
+                    if f > l:
+                        force = -force / f
                     balls[j].force += force
                     balls[i].force -= force
 
@@ -85,11 +86,11 @@ class Ball:
 
 
 class BallSet:
-    def __init__(self, balls: list[Ball]):
+    def __init__(self, balls: list[Ball],boundary):
         self.balls = balls
         self.ke = 0
-        self.gridSize = 20
-        self.gridDim = (64, 36)
+        self.gridSize = balls[0].radius
+        self.gridDim = (-(-boundary[0]//self.gridSize), -(-boundary[1]//self.gridSize))
 
     def update(self, dt):
         self.ke = 0

@@ -67,20 +67,19 @@ class Wall:
 
 
 class CircularWall:
-    elasticity = 1
+    elasticity = 1.1
 
-    def __init__(self, surf: p.Surface, center: np.ndarray, radius: float,
-                 thickness=0,
+    def __init__(self, surf: p.Surface, center: np.ndarray, radius: float,func,
+                 thickness=10,
                  color=(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))):
         self.center = np.float64(center)
         self.radius = radius
         self.color = color
         self.thickness = thickness
         self.surf = surf
-
+        self.func = func
     def draw(self):
-        # p.draw.circle(self.surf, self.color, self.center.astype(int), self.radius, self.thickness)
-        pass
+        p.draw.circle(self.surf, self.color, self.center.astype(int), self.radius+self.thickness/2, self.thickness)
     def update(self, dt):
         pass
 
@@ -108,10 +107,14 @@ class CircularWall:
             if relative_velocity < 0:
                 return
 
+            self.func.play()
+            # time.sleep(0.1)
+            utils.append_to_file('g.txt',str(frame))
             # Calculate the impulse magnitude
             impulse_magnitude = -(1 + self.elasticity) * relative_velocity
 
             # Calculate the impulse
+            # assert isinstance(normal_vector, np.float64)
             impulse = impulse_magnitude * normal_vector
 
 
@@ -134,5 +137,6 @@ class WallSet:
 
     def interact(self, b: ball.BallSet,frame):
         for i in self.walls:
-            for j in b.balls:
-                i.interact(j,frame)
+            if type(b) == ball.BallSet:
+                for j in b.balls:
+                    i.interact(j,frame)

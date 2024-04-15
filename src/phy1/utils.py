@@ -52,7 +52,7 @@ def append_to_file(file_path, content):
     # Open the file in append mode ('a')
     with open(file_path, "a") as f:
         # Write content to the file
-        f.write(content + "\n")
+        f.write(str(content) + "\n")
 def draw_horizontal_line(surface, x1, x2, y, color):
     p.draw.line(surface, color, (x1, y), (x2, y))
 

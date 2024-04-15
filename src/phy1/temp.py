@@ -1,59 +1,62 @@
-# import pygame
-# import math
-#
-# def interpolate(from_value, to_value, percent):
-#     difference = to_value - from_value
-#     return from_value + (difference * percent)
-#
-# def bezier_curve(control_points, num_segments=100):
-#     curve_points = []
-#     for i in range(num_segments):
-#         t = i / num_segments
-#         xa = interpolate(control_points[0][0], control_points[1][0], t)
-#         ya = interpolate(control_points[0][1], control_points[1][1], t)
-#         xb = interpolate(control_points[1][0], control_points[2][0], t)
-#         yb = interpolate(control_points[1][1], control_points[2][1], t)
-#         x = interpolate(xa, xb, t)
-#         y = interpolate(ya, yb, t)
-#         curve_points.append((int(x), int(y)))
-#     return curve_points
-#
-# # Example usage:
-# control_points = [(100, 100), (200, 300), (400, 100)]  # Control points for the Bézier curve
-#
-# # Initialize Pygame
-# pygame.init()
-#
-# # Set up the display
-# width, height = 800, 600
-# screen = pygame.display.set_mode((width, height))
-#
-# # Define colors
-# WHITE = (255, 255, 255)
-# BLACK = (0, 0, 0)
-# RED = (255, 0, 0)
-#
-# # Main loop
-# running = True
-# while running:
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             running = False
-#
-#     # Clear the screen
-#     screen.fill(WHITE)
-#
-#     # Draw control points
-#     for point in control_points:
-#         pygame.draw.circle(screen, BLACK, point, 5)
-#
-#     # Draw Bézier curve
-#     curve_points = bezier_curve(control_points)
-#     pygame.draw.lines(screen, RED, False, curve_points, 2)
-#
-#     # Update the display
-#     pygame.display.flip()
-#
-# # Quit Pygame
-# pygame.quit()
+import pygame
+import numpy as np
+from scipy.interpolate import CubicSpline
 
+# Initialize Pygame
+pygame.init()
+
+# Set up the display
+width, height = 800, 600
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Soft Body Visualization")
+
+# Define colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+
+# Define data points
+points = np.array([[100, 200],
+                   [200, 300],
+                   [300, 250],
+                   [400, 350],
+                   [500, 200]])
+
+# Compute the cubic spline interpolation
+x = points[:, 0]
+y = points[:, 1]
+cs = CubicSpline(x, y)
+
+# Main loop
+running = True
+clock = pygame.time.Clock()
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Clear the screen
+    screen.fill(WHITE)
+
+    # Draw original data points
+    for point in points:
+        pygame.draw.circle(screen, BLACK, (int(point[0]), int(point[1])), 5)
+
+    # Draw the interpolated curve
+    t = np.linspace(0, len(points) - 1, 100)
+    curve_points = np.column_stack((cs(t),)).astype(int)
+
+    # Check if curve_points has more than one column
+    print(curve_points)
+    curve_points = [(point[0], point[1]) for point in curve_points[:,0]]  # Convert to list of (x, y) tuples
+    pygame.draw.lines(screen, RED, False, curve_points, 10)
+
+    # Update the display
+    pygame.display.flip()
+
+    # Cap the frame rate
+    clock.tick(60)
+
+# Quit Pygame
+pygame.quit()
