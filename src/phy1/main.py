@@ -18,14 +18,15 @@ class App:
     def __init__(self):
         p.init()
         p.display.set_caption('Sim')
-        self.sound = pygame.mixer.Sound("sound.flac")
+        self.sound = pygame.mixer.Sound("assets/sound.flac")
         self.surf = pygame.Surface(WIN_RES)
+
         self.window = p.display.set_mode(OBS_RES)
         self.font = p.font.Font(None, 30)
         self.clock = p.time.Clock()
         self.Sim = Simulation(self, WIN_RES,self.sound)
         self.prev = time.time()
-        self.out = cvrec.get_out('happy.mp4', 60, WIN_RES[::-1])
+        self.out = cvrec.get_out(utils.generate_file_name(r'output\vid','','mp4'), 60, WIN_RES[::-1])
         self.frame = 0
 
     def update(self, dt):
@@ -63,7 +64,7 @@ class App:
             self.update(t - self.prev)
             self.draw()
             utils.debug(1 / (t - self.prev), 300)
-            self.window.blit(p.transform.rotozoom( self.surf,90,720/1280), (0, 0))
+            self.window.blit(p.transform.rotozoom( self.surf,-90,720/1280), (0, 0))
             p.display.update()
             self.out.write(p.surfarray.array3d( self.surf)[:, :, ::-1])
             self.prev = t

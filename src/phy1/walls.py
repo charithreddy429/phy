@@ -1,5 +1,3 @@
-import time
-
 import numpy as np
 import random
 import pygame as p
@@ -20,12 +18,12 @@ class Wall:
         self.surf = surf
 
     def draw(self):
-        p.draw.line(self.surf, self.color, self.stPosition , self.edPosition , self.thickness)
+        p.draw.line(self.surf, self.color, self.stPosition, self.edPosition, self.thickness)
 
-    def update(self,dt):
+    def update(self, dt):
         pass
 
-    def interact(self, b: ball.Ball,frame):
+    def interact(self, b: ball.Ball, frame):
 
         # Calculate the vector representing the wall
         wall_vector = self.edPosition - self.stPosition
@@ -40,17 +38,17 @@ class Wall:
         wall_to_ball = b.position - self.stPosition
 
         # Calculate the perpendicular distance between the wall and the ball
-        perpendicular_distance = np.dot(wall_to_ball , wall_normal)
+        perpendicular_distance = np.dot(wall_to_ball, wall_normal)
 
         # If the perpendicular distance is less than the radius of the ball,
         # then there is a collision
         if abs(perpendicular_distance) <= b.radius:
             # Calculate the relative velocity between the ball and the wall
-            relative_velocity = np.dot(b.velocity , wall_normal )
+            relative_velocity = np.dot(b.velocity, wall_normal)
             penetration_depth = b.radius - abs(perpendicular_distance)
 
             # Move the ball out of the wall along the normal vector
-            b.position  += penetration_depth * wall_normal
+            b.position += penetration_depth * wall_normal
             # If the relative velocity is positive, the ball is moving away from the wall
             # and no collision response is needed
             if relative_velocity > 0:
@@ -69,7 +67,7 @@ class Wall:
 class CircularWall:
     elasticity = 1.1
 
-    def __init__(self, surf: p.Surface, center: np.ndarray, radius: float,func,
+    def __init__(self, surf: p.Surface, center: np.ndarray, radius: float, func,
                  thickness=10,
                  color=(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))):
         self.center = np.float64(center)
@@ -78,12 +76,14 @@ class CircularWall:
         self.thickness = thickness
         self.surf = surf
         self.func = func
+
     def draw(self):
-        p.draw.circle(self.surf, self.color, self.center.astype(int), self.radius+self.thickness/2, self.thickness)
+        p.draw.circle(self.surf, self.color, self.center.astype(int), self.radius + self.thickness / 2, self.thickness)
+
     def update(self, dt):
         pass
 
-    def interact(self, b: ball.Ball,frame):
+    def interact(self, b: ball.Ball, frame):
         # Calculate the vector from the center of the circle to the ball
         center_to_ball = b.position - self.center
 
@@ -107,9 +107,7 @@ class CircularWall:
             if relative_velocity < 0:
                 return
 
-            self.func.play()
             # time.sleep(0.1)
-            utils.append_to_file('g.txt',str(frame))
             # Calculate the impulse magnitude
             impulse_magnitude = -(1 + self.elasticity) * relative_velocity
 
@@ -117,17 +115,25 @@ class CircularWall:
             # assert isinstance(normal_vector, np.float64)
             impulse = impulse_magnitude * normal_vector
 
-
-            b.position-=normal_vector*(distance_to_center+b.radius-self.radius)
+            b.position -= normal_vector * (distance_to_center + b.radius - self.radius)
+            if b.color == (255, 223, 224):
+                return -1
+            else:
+                print(frame)
+                utils.append_to_file('g1.txt', str(frame))
+                self.func(b.position[0], b.position[1], -normal_vector, 10)
             # Apply the impulse to the ball
             b.velocity += impulse
+            self.radius += 5
             # b.radius += 2
             # utils.append_to_file('g.txt',str(frame))
+
+
 class WallSet:
-    def __init__(self, walls: list[Wall]):
+    def __init__(self, walls: list[Wall | CircularWall]):
         self.walls = walls
 
-    def update(self,dt):
+    def update(self, dt):
         for i in self.walls:
             i.update(dt)
 
@@ -135,8 +141,9 @@ class WallSet:
         for i in self.walls:
             i.draw()
 
-    def interact(self, b: ball.BallSet,frame):
+    def interact(self, b: ball.BallSet, frame):
         for i in self.walls:
-            if type(b) == ball.BallSet:
+            if isinstance(i, ball.BallSet):
                 for j in b.balls:
-                    i.interact(j,frame)
+                    if i.interact(j, frame) == -1:
+                        b.balls.remove(j)

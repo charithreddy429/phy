@@ -10,7 +10,7 @@ class Ball:
     elasticity = 1
 
     def __init__(self, surf: p.Surface, x: float, y: float, velocity,
-                 radius=10,color = None,mass=1):
+                 radius=10, color=None, mass=1):
         self.position = np.float64([x, y])
         self.velocity = velocity  # type: ignore
         self.radius = radius
@@ -19,17 +19,17 @@ class Ball:
         self.path = []
         self.surf = surf
         if color is not None:
-            self.color =   color
+            self.color = color
         else:
             self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
-
     def update(self, dt):
 
-        # self.path.append(self.position.astype(np.int64))  # type: ignore
+        self.path.append(self.position.astype(np.int64))  # type: ignore
         if len(self.path) > 500:
             self.path.pop(0)
 
+        # self.path.append(self.position.copy())
         self.velocity = self.velocity + self.force * dt / self.mass
         self.force = 0
         self.position += self.velocity * dt
@@ -72,8 +72,8 @@ class Ball:
 
                     r = balls[i].position - balls[j].position  # type: ignore
                     # force = r*( k/((np.dot(r, r)-500) ** (3 / 2)) -k/ (np.dot(r, r) ** (3 / 2)))
-                    force = r*k/(np.dot(r, r)**(3/2))
-                    l= 1e4
+                    force = r * k / (np.dot(r, r) ** (3 / 2))
+                    l = 1e4
                     f = np.dot(force, force)
                     if f > l:
                         force = -force / f
@@ -86,13 +86,15 @@ class Ball:
 
 
 class BallSet:
-    def __init__(self, balls: list[Ball],boundary):
+    def __init__(self, balls: list[Ball], boundary):
         self.balls = balls
         self.ke = 0
         self.gridSize = balls[0].radius
-        self.gridDim = (-(-boundary[0]//self.gridSize), -(-boundary[1]//self.gridSize))
+        self.gridDim = (-(-boundary[0] // self.gridSize), -(-boundary[1] // self.gridSize))
 
     def update(self, dt):
+        if len(self.balls) ==0:
+            return -1
         self.ke = 0
 
         grid: list[list[int]] = [[] for i in range(self.gridDim[0] * self.gridDim[1])]
@@ -102,17 +104,16 @@ class BallSet:
 
             self.ke += np.dot(i.velocity, i.velocity)
             n = floor(max(min(i.position[0] // self.gridSize, self.gridDim[0]), 0) +
-                             max(min(i.position[1] // self.gridSize, self.gridDim[1]), 0) * self.gridDim[0])
+                      max(min(i.position[1] // self.gridSize, self.gridDim[1]), 0) * self.gridDim[0])
             grid[n].append(ind)
 
         for i in range(self.gridDim[0] * self.gridDim[1]):
             if not (grid[i]):
-               continue
+                continue
             for j in [0, 1, -1, self.gridDim[0], -self.gridDim[0], 1 + self.gridDim[0], -1 + self.gridDim[0],
 
-
                       1 - self.gridDim[0], -1 - self.gridDim[0]]:
-                if 0 <= i + j < self.gridDim[0]*self.gridDim[1]:
+                if 0 <= i + j < self.gridDim[0] * self.gridDim[1]:
                     self.cocell(grid[i], grid[i + j])
 
     def cocell(self, s, b):
@@ -126,5 +127,5 @@ class BallSet:
             i.draw()
         utils.debug(self.ke)
 
-    def interact(self, p,f):
+    def interact(self, p, f):
         pass

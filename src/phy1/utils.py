@@ -19,7 +19,32 @@ def debug(info, x=10, y=10,surf = None):
     else:
         surf.blit(debug_surf, debug_rect)
 import math
-def vector_with_magnitude(mag: float, dim: int = 2) -> np.ndarray:
+import datetime
+
+def generate_file_name(prefix='', suffix='', extension=''):
+    """
+    Generate a file name based on the current date and time.
+
+    Parameters:
+        prefix (str): Optional prefix for the file name.
+        suffix (str): Optional suffix for the file name.
+        extension (str): Optional file extension.
+
+    Returns:
+        str: The generated file name.
+    """
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    file_name = f"{prefix}{current_time}{suffix}.{extension}"
+    return file_name
+
+# Example usage:
+prefix = "data_"
+suffix = "_backup"
+extension = "txt"
+file_name = generate_file_name(prefix, suffix, extension)
+print("Generated file name:", file_name)
+
+def vector_with_magnitude(mag: float,vec = np.array([0,0]) ,dim: int = 2) -> np.ndarray:
     """
     Generates a random vector of specified magnitude `h` in `dim` dimensions.
 
@@ -39,7 +64,7 @@ def vector_with_magnitude(mag: float, dim: int = 2) -> np.ndarray:
     # Scale the normalized vector to have magnitude `mag`
     vector = normalized_vector * mag
 
-    return vector
+    return vector if np.dot(vec,vector)>0 else - vector
 
 def append_to_file(file_path, content):
     """
