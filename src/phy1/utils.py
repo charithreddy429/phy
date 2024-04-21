@@ -1,25 +1,50 @@
-# import numpy as np
-# import random
-# import pygame as p
-from ball import *
+import numpy as np
+import random
+import pygame as p
 import time
 import cv2
 from structures import Circle
 from cvrec import get_out
 
+# from ball import *
+# import pygame as p
+# import
 p.init()
 h = width, height = 1380, 746
 font = p.font.Font(None, 30)
 
-def debug(info, x=10, y=10,surf = None):
+
+def debug(info, x=10, y=10, surf=None):
     debug_surf = font.render(str(info), True, "red")
     debug_rect = debug_surf.get_rect(topleft=(x, y))
     if surf is None:
         p.display.get_surface().blit(debug_surf, debug_rect)
     else:
         surf.blit(debug_surf, debug_rect)
+
+
 import math
-def vector_with_magnitude(mag: float, dim: int = 2) -> np.ndarray:
+import datetime
+
+
+def generate_file_name(prefix='', suffix='', extension=''):
+    """
+    Generate a file name based on the current date and time.
+
+    Parameters:
+        prefix (str): Optional prefix for the file name.
+        suffix (str): Optional suffix for the file name.
+        extension (str): Optional file extension.
+
+    Returns:
+        str: The generated file name.
+    """
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    file_name = f"{prefix}{current_time}{suffix}.{extension}"
+    return file_name
+
+
+def vector_with_magnitude(mag: float, vec=np.array([0, 0]), dim: int = 2) -> np.ndarray:
     """
     Generates a random vector of specified magnitude `h` in `dim` dimensions.
 
@@ -39,7 +64,8 @@ def vector_with_magnitude(mag: float, dim: int = 2) -> np.ndarray:
     # Scale the normalized vector to have magnitude `mag`
     vector = normalized_vector * mag
 
-    return vector
+    return vector if np.dot(vec, vector) > 0 else - vector
+
 
 def append_to_file(file_path, content):
     """
@@ -53,8 +79,11 @@ def append_to_file(file_path, content):
     with open(file_path, "a") as f:
         # Write content to the file
         f.write(str(content) + "\n")
+
+
 def draw_horizontal_line(surface, x1, x2, y, color):
     p.draw.line(surface, color, (x1, y), (x2, y))
+
 
 def fill_triangle(surface, points, color):
     # # Sort the points by y-coordinate
@@ -96,12 +125,15 @@ def fill_triangle(surface, points, color):
     # # for y in range(p1[1], p3[1] + 1):
     # #
     p.draw.polygon(surface, (255, 0, 0), points)
-def polyc(surf , center,points,color):
-    for  i in range(len(points)):
-        fill_triangle(surf,[center,points[i],points[(i+1)%len(points)]],color)
+
+
+def polyc(surf, center, points, color):
+    for i in range(len(points)):
+        fill_triangle(surf, [center, points[i], points[(i + 1) % len(points)]], color)
+
 
 def totu(a):
-    return (int(a[0]),int(a[1]))
+    return (int(a[0]), int(a[1]))
 
 
 import math
@@ -127,6 +159,6 @@ def is_clockwise(objects, center):
 
     # Check if sorted angles are in ascending order
     if angles == sorted_angles:
-        return True ,(angles) # Clockwise order
+        return True, (angles)  # Clockwise order
     else:
-        return False  ,(angles)# Not clockwise order
+        return False, (angles)  # Not clockwise order

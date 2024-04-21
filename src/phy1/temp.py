@@ -1,56 +1,43 @@
 import pygame
-import numpy as np
-from scipy.interpolate import CubicSpline
 
 # Initialize Pygame
 pygame.init()
 
-# Set up the display
+# Set up display
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Soft Body Visualization")
+clock = pygame.time.Clock()
 
-# Define colors
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
+# Load transparent circle image
+circle = pygame.Surface((40,40),pygame.SRCALPHA)
+pygame.draw.circle(circle,(255,255,255),(20,20),20)
+circle.convert_alpha()
 
-# Define data points
-points = np.array([[100, 200],
-                   [200, 300],
-                   [300, 250],
-                   [400, 350],
-                   [500, 200]])
-
-# Compute the cubic spline interpolation
-x = points[:, 0]
-y = points[:, 1]
-cs = CubicSpline(x, y)
+# Initial alpha value
+alpha = 128  # Semi-transparent (adjust as needed)
 
 # Main loop
 running = True
-clock = pygame.time.Clock()
-
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+            # Increase or decrease alpha value with arrow keys
+            if event.key == pygame.K_UP:
+                alpha = min(alpha + 10, 255)  # Increase alpha (up arrow)
+            elif event.key == pygame.K_DOWN:
+                alpha = max(alpha - 10, 0)    # Decrease alpha (down arrow)
 
     # Clear the screen
-    screen.fill(WHITE)
+    screen.fill((0, 0, 180))
 
-    # Draw original data points
-    for point in points:
-        pygame.draw.circle(screen, BLACK, (int(point[0]), int(point[1])), 5)
+    # Set alpha transparency for the circle image
+    circle.set_alpha(alpha)
+    print(type(circle))
 
-    # Draw the interpolated curve
-    t = np.linspace(0, len(points) - 1, 100)
-    curve_points = np.column_stack((cs(t),)).astype(int)
-
-    # Check if curve_points has more than one column
-    print(curve_points)
-    curve_points = [(point[0], point[1]) for point in curve_points[:,0]]  # Convert to list of (x, y) tuples
-    pygame.draw.lines(screen, RED, False, curve_points, 10)
+    # Draw the transparent circle image onto the screen
+    screen.blit(circle, (width // 2 - circle.get_width() // 2, height // 2 - circle.get_height() // 2))
 
     # Update the display
     pygame.display.flip()
