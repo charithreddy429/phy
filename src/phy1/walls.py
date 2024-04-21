@@ -65,11 +65,11 @@ class Wall:
 
 
 class CircularWall:
-    elasticity = 1.1
 
     def __init__(self, surf: p.Surface, center: np.ndarray, radius: float, func,
-                 thickness=10,
+                 thickness=10, elasticity=1.0,
                  color=(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))):
+        self.elasticity = elasticity
         self.center = np.float64(center)
         self.radius = radius
         self.color = color
@@ -119,12 +119,12 @@ class CircularWall:
             if b.color == (255, 223, 224):
                 return -1
             else:
-                print(frame)
+                # print(frame)
                 utils.append_to_file('g1.txt', str(frame))
                 self.func(b.position[0], b.position[1], -normal_vector, 10)
             # Apply the impulse to the ball
             b.velocity += impulse
-            self.radius += 5
+            # self.radius += 5
             # b.radius += 2
             # utils.append_to_file('g.txt',str(frame))
 
@@ -143,7 +143,7 @@ class WallSet:
 
     def interact(self, b: ball.BallSet, frame):
         for i in self.walls:
-            if isinstance(i, ball.BallSet):
+            if isinstance(b, ball.BallSet):
                 for j in b.balls:
                     if i.interact(j, frame) == -1:
                         b.balls.remove(j)
