@@ -152,7 +152,7 @@ class BallSet:
                         self.cocell(grid[i], grid[i + j])
         x = list(self.nd)
         x.sort(reverse=True)
-        print(self.nd)
+        # print(self.nd)
         for i in x:
             # pass
             self.balls.pop(i)
