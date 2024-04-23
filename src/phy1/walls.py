@@ -10,7 +10,7 @@ class Wall:
 
     def __init__(self, surf: p.Surface, x1: float, y1: float, x2, y2,
                  thickness=5,
-                 color=(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))):
+                 color=utils.rclr()):
         self.stPosition = np.float64([x1, y1])
         self.edPosition = np.float64([x2, y2])
         self.color = color
@@ -127,6 +127,10 @@ class CircularWall:
             # self.radius += 5
             # b.radius += 2
             # utils.append_to_file('g.txt',str(frame))
+
+    def normal(self, point: np.ndarray):
+        n = (self.position - point)
+        return n / np.linalg.norm(n)
 
 
 class WallSet:

@@ -1,14 +1,8 @@
 import numpy as np
 import random
 import pygame as p
-import time
-import cv2
-from structures import Circle
-from cvrec import get_out
 
-# from ball import *
-# import pygame as p
-# import
+
 p.init()
 h = width, height = 1380, 746
 font = p.font.Font(None, 30)
@@ -23,7 +17,28 @@ def debug(info, x=10, y=10, surf=None):
         surf.blit(debug_surf, debug_rect)
 
 
-import math
+random.seed(random.random())
+def rclr(t=random.random()*5):
+    # Adjust the period and phase to change the speed and starting color
+    period = 5.0  # Adjust this value to change the speed of color transition
+    phase_shift = 0.0  # Adjust this value to change the starting color
+
+    # Calculate color components using sine function
+    r = int((math.sin(2 * math.pi * t / period + phase_shift) + 1) * 127.5)
+    g = int((math.sin(2 * math.pi * (t / period + 1 / 3) + phase_shift) + 1) * 127.5)
+    b = int((math.sin(2 * math.pi * (t / period + 2 / 3) + phase_shift) + 1) * 127.5)
+
+    return (r, g, b)
+
+
+# # Example usage:
+# current_time = 10.0  # Replace this with the actual current time
+# color = time_based_color(current_time)
+# print("Color:", color)
+#
+# def rclr():
+#     return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+
 import datetime
 
 

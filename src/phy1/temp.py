@@ -1,49 +1,50 @@
+#!/usr/bin/python3.4
+# Setup Python ----------------------------------------------- #
 import pygame
+import sys
 
-# Initialize Pygame
+# Setup pygame/window ---------------------------------------- #
+mainClock = pygame.time.Clock()
+from pygame.locals import *
+
 pygame.init()
+pygame.display.set_caption('game base')
+screen = pygame.display.set_mode((500, 500), 0, 32)
 
-# Set up display
-width, height = 800, 600
-screen = pygame.display.set_mode((width, height))
-clock = pygame.time.Clock()
+# Special Flags
+special_flags_list = [0, pygame.BLEND_ADD, pygame.BLEND_SUB, pygame.BLEND_MULT, pygame.BLEND_MIN, pygame.BLEND_MAX,
+                      pygame.BLEND_RGB_ADD, pygame.BLEND_RGB_SUB,-1]
+print(special_flags_list[1])
+# Loop ------------------------------------------------------- #
+while True:
+    # Background --------------------------------------------- #
+    screen.fill((100, 10, 10))
 
-# Load transparent circle image
-circle = pygame.Surface((40,40),pygame.SRCALPHA)
-pygame.draw.circle(circle,(255,255,255),(20,20),20)
-circle.convert_alpha()
+    # Draw circles with different special flags
+    for i, flag in enumerate(special_flags_list):
+        x = 50 + i * 40
+        y = 250
+        radius = 20
+        color = (255, 255, 255)
+        pygame.draw.circle(screen, color, (x, y), radius)
+        if flag!=-1:
+            # Draw a surface with special flags on each circle
+            circle_surf = pygame.Surface((radius * 2+8, radius * 2+8), flags=pygame.SRCALPHA)
+            pygame.draw.circle(circle_surf, (20,20,20), (radius+4, 4+radius), radius+4)
+            circle_surf.set_colorkey((0, 0, 0))
+            # circle_surf.set_alpha(100)  # Adjust transparency for better visualization
+            screen.blit(circle_surf, (x - radius-4, y - radius-4), special_flags=flag)
 
-# Initial alpha value
-alpha = 128  # Semi-transparent (adjust as needed)
-
-# Main loop
-running = True
-while running:
+    # Buttons ------------------------------------------------ #
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            # Increase or decrease alpha value with arrow keys
-            if event.key == pygame.K_UP:
-                alpha = min(alpha + 10, 255)  # Increase alpha (up arrow)
-            elif event.key == pygame.K_DOWN:
-                alpha = max(alpha - 10, 0)    # Decrease alpha (down arrow)
+        if event.type == QUIT:
+            pygame.quit()
+            sys.exit()
+        if event.type == KEYDOWN:
+            if event.key == K_ESCAPE:
+                pygame.quit()
+                sys.exit()
 
-    # Clear the screen
-    screen.fill((0, 0, 180))
-
-    # Set alpha transparency for the circle image
-    circle.set_alpha(alpha)
-    print(type(circle))
-
-    # Draw the transparent circle image onto the screen
-    screen.blit(circle, (width // 2 - circle.get_width() // 2, height // 2 - circle.get_height() // 2))
-
-    # Update the display
-    pygame.display.flip()
-
-    # Cap the frame rate
-    clock.tick(60)
-
-# Quit Pygame
-pygame.quit()
+    # Update ------------------------------------------------- #
+    pygame.display.update()
+    mainClock.tick(60)
