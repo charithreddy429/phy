@@ -5,7 +5,7 @@ import utils
 
 class Rec:
 
-    def __init__(self, surf, position, velocity=None, wh=(10, 10), color=utils.rclr()):
+    def __init__(self, surf, position, velocity=None, wh=(10, 10), outcolor=(255,255,255),color=utils.rclr()):
         self.position = position
         if velocity is None:
             velocity = np.float64([0.0, 0.0])
@@ -13,21 +13,27 @@ class Rec:
         self.wh = wh
         self.mass = 0
         self.thickness = np.float64([10.0, 10.0])
-        self.color = color
+        self.outcolor = outcolor
+        self.color  = color
         self.surf = surf
         self.rect = p.Rect(self.position[0], self.position[1], self.wh[0], self.wh[1])
-
+        self.drawmode =1
     def update(self, dt):
         t = self.position.copy()
         self.position += (self.position - self.lpos)
         self.lpos = t
+
         # self.rect.topleft = ()  # Update rect position
 
     def draw(self):
-
-        # print(self.position[0], self.position[1])
-        p.draw.rect(self.surf, self.color, (int(self.position[0]), int(self.position[1]), *self.wh),
-                    int(self.thickness[0]))
+        if self.drawmode%2:
+            print(self.position,self.outcolor,int(self.thickness[0]))
+            p.draw.rect(self.surf, self.outcolor, (*(self.position-self.thickness).astype(int), *(np.array(self.wh)+2*self.thickness).astype(int)),
+                        int(self.thickness[0]))
+        print(self.drawmode//2,self.drawmode)
+        if self.drawmode//2:
+            # print(self.position[0], self.position[1])
+            p.draw.rect(self.surf, self.color, (int(self.position[0]), int(self.position[1]), *self.wh))
         # print(self.position,"draw")
 
     def collide(self, other_rec):
@@ -108,7 +114,8 @@ class Rec:
         else:
             pass
             # self.color = (self.color[0], 0, self.color[2])
-
+        if condition1_y or condition2_y or condition2_x or condition1_x:
+            return True
     def getvelocity(self):
         return self.position - self.lpos
 
@@ -124,7 +131,7 @@ class RecSet:
         for i in self.recs:
             i.draw()
 
-    def update(self, dt):
+    def update(self, dt,frame):
         # print("fram")
         for i in self.recs:
             i.update(dt)
@@ -137,7 +144,8 @@ class RecSet:
         # print(i.position)
         for i in range(len(self.recs)):
             for j in range(i + 1, len(self.recs)):
-                self.recs[i].collide(self.recs[j])
+                if self.recs[i].collide(self.recs[j]):
+                    utils.append_to_file("wa.txt",frame)
 
     def interact(self, *k):
         pass

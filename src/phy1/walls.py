@@ -7,7 +7,6 @@ import utils
 
 class Wall:
     elasticity = 1
-
     def __init__(self, surf: p.Surface, x1: float, y1: float, x2, y2,
                  thickness=5,
                  color=utils.rclr()):
@@ -25,43 +24,38 @@ class Wall:
 
     def interact(self, b: ball.Ball, frame):
 
-        # Calculate the vector representing the wall
         wall_vector = self.edPosition - self.stPosition
 
-        # Calculate the normalized normal vector of the wall
         wall_normal = np.array([-wall_vector[1], wall_vector[0]])
 
-        # Normalize the wall_normal vector
         wall_normal /= np.linalg.norm(wall_normal)
 
-        # Calculate the vector from the start of the wall to the ball
         wall_to_ball = b.position - self.stPosition
 
-        # Calculate the perpendicular distance between the wall and the ball
         perpendicular_distance = np.dot(wall_to_ball, wall_normal)
 
-        # If the perpendicular distance is less than the radius of the ball,
-        # then there is a collision
+
+
         if abs(perpendicular_distance) <= b.radius:
-            # Calculate the relative velocity between the ball and the wall
-            relative_velocity = np.dot(b.velocity, wall_normal)
+            relative_velocity = np.dot(b.getvel(), wall_normal)
             penetration_depth = b.radius - abs(perpendicular_distance)
 
             # Move the ball out of the wall along the normal vector
-            b.position += penetration_depth * wall_normal
+            # b.position += penetration_depth * wall_normal
+            # b.lposition+= penetration_depth * wall_normal
             # If the relative velocity is positive, the ball is moving away from the wall
             # and no collision response is needed
             if relative_velocity > 0:
                 return
 
             # Calculate the impulse magnitude
-            impulse_magnitude = -(1 + self.elasticity) * relative_velocity
+            impulse_magnitude = -(1 + self.elasticity.real) * relative_velocity
 
             # Calculate the impulse
             impulse = impulse_magnitude * wall_normal
-
+            print(impulse,impulse_magnitude)
             # Apply the impulse to the ball
-            b.velocity += impulse
+            b.addvel(impulse)
 
 
 class CircularWall:
@@ -100,7 +94,7 @@ class CircularWall:
             normal_vector = center_to_ball / distance_to_center
 
             # Calculate the relative velocity between the ball and the circle
-            relative_velocity = np.dot(b.velocity[0:2], normal_vector)
+            relative_velocity = np.dot(b.getvel(), normal_vector)
 
             # If the relative velocity is positive, the ball is moving away from the circle
             # and no collision response is needed
@@ -109,22 +103,22 @@ class CircularWall:
 
             # time.sleep(0.1)
             # Calculate the impulse magnitude
-            impulse_magnitude = -(1 + self.elasticity) * relative_velocity
+            impulse_magnitude = -(1 + self.elasticity.real) * relative_velocity
 
             # Calculate the impulse
             # assert isinstance(normal_vector, np.float64)
             impulse = impulse_magnitude * normal_vector
-
             b.position -= normal_vector * (distance_to_center + b.radius - self.radius)
+            b.lposition-= normal_vector * (distance_to_center + b.radius - self.radius)
             if b.color == (255, 223, 224):
                 return -1
             else:
-                # print(frame)
+                print(frame)
                 utils.append_to_file('g1.txt', str(frame))
                 self.func(b.position[0], b.position[1], -normal_vector, 10)
             # Apply the impulse to the ball
-            b.velocity += impulse
-            # self.radius += 5
+            b.addvel(impulse)
+            # b.velocity*=1.1            # self.radius += 5
             # b.radius += 2
             # utils.append_to_file('g.txt',str(frame))
 
@@ -137,7 +131,7 @@ class WallSet:
     def __init__(self, walls: list[Wall | CircularWall]):
         self.walls = walls
 
-    def update(self, dt):
+    def update(self, dt, frame, *k):
         for i in self.walls:
             i.update(dt)
 
@@ -146,8 +140,9 @@ class WallSet:
             i.draw()
 
     def interact(self, b: ball.BallSet, frame):
+        if not isinstance(b, ball.BallSet):
+            return
         for i in self.walls:
-            if isinstance(b, ball.BallSet):
-                for j in b.balls:
-                    if i.interact(j, frame) == -1:
-                        b.balls.remove(j)
+            for j in b.balls:
+                if i.interact(j, frame) == -1:
+                    b.balls.remove(j)

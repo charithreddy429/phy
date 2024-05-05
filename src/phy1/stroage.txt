@@ -1,0 +1,37 @@
+square
+        # self.objects.append(m:=RecSet([n:=Rec(self.app.surf,np.float64([280,10]),np.array([0.0,0.0]),(780,700),(127,0,127))]))
+        # n.mass = 1
+        # m.recs.append(n:=Rec(self.app.surf,np.float64([290,10]),np.array([10.0,10.0]),(120,120),(255,255,252)))
+        # n.mass = 0
+        # n.drawmode = 3
+        # n.thickness = np.float64([1,1])*2
+square
+    # @staticmethod
+
+    # def gravity(balls: List['Ball'], k=1e5):
+
+    #     for i in range(len(balls)):
+
+    #         for j in range(len(balls)):
+
+    #             if i > j:
+
+    #
+
+    #                 r = balls[i].position - balls[j].position  # type: ignore
+
+    #                 # force = r*( k/((np.dot(r, r)-500) ** (3 / 2)) -k/ (np.dot(r, r) ** (3 / 2)))
+
+    #                 force = r * k / (np.dot(r, r) ** (3 / 2))
+
+    #                 l = 1e4
+
+    #                 f = np.dot(force, force)
+
+    #                 if f > l:
+
+    #                     force = -force / f
+
+    #                 balls[j].force += force
+
+    #                 balls[i].force -= force

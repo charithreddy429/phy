@@ -1,50 +1,95 @@
-#!/usr/bin/python3.4
-# Setup Python ----------------------------------------------- #
-import pygame
-import sys
+# import pygame
+# import time
+# import numpy as np
+# import matplotlib.pyplot as plt
+#
+# # Initialize Pygame
+# pygame.init()
+#
+# # Set the tempo and beats per measure for each rhythm
+# tempo = 120
+# beats_per_measure_1 = 4  # Change this to adjust the first rhythm
+# beats_per_measure_2 = 3  # Change this to adjust the second rhythm
+#
+# # Calculate the time duration for each beat
+# beat_duration = 60.0 / tempo
+#
+# # Set up the Pygame mixer
+# pygame.mixer.init()
+#
+# # Define the frequencies for each rhythm (you can adjust these to change the tones)
+# frequency_1 = 440  # Adjust this to change the first rhythm tone
+# frequency_2 = 660  # Adjust this to change the second rhythm tone
+# time.sleep(10)
+# # Function to generate the waveform for the first rhythm
+# def generate_waveform_1():
+#     samples = []
+#     for t in range(int(44100 * beat_duration)):  # Generate samples for one beat
+#         sample = np.sin(2 * np.pi * frequency_1 * t / 44100)
+#         samples.append(sample)
+#     return samples
+#
+# # Function to generate the waveform for the second rhythm
+# def generate_waveform_2():
+#     samples = []
+#     for t in range(int(44100 * beat_duration)):  # Generate samples for one beat
+#         sample = np.sin(2 * np.pi * frequency_2 * t / 44100)
+#         samples.append(sample)
+#     return samples
+#
+# # Generate waveforms
+# waveform_1 = generate_waveform_1()
+# waveform_2 = generate_waveform_2()
+# waveform_1.play()
+# # Plot waveforms
+# plt.figure(figsize=(10, 6))
+#
+# plt.subplot(2, 1, 1)
+# plt.plot(waveform_1)
+# plt.title('First Rhythm Waveform')
+# plt.xlabel('Sample')
+# plt.ylabel('Amplitude')
+#
+# plt.subplot(2, 1, 2)
+# plt.plot(waveform_2)
+# plt.title('Second Rhythm Waveform')
+# plt.xlabel('Sample')
+# plt.ylabel('Amplitude')
+#
+# plt.tight_layout()
+# plt.show()
+#
+# # Quit Pygame
+# pygame.quit()
+import numpy as np
 
-# Setup pygame/window ---------------------------------------- #
-mainClock = pygame.time.Clock()
-from pygame.locals import *
 
-pygame.init()
-pygame.display.set_caption('game base')
-screen = pygame.display.set_mode((500, 500), 0, 32)
+class Circle:
+    def __init__(self, center, velocity, radius):
+        self.center = np.array(center, dtype=np.float64)
+        self.velocity = np.array(velocity, dtype=np.float64)
+        self.radius = radius
 
-# Special Flags
-special_flags_list = [0, pygame.BLEND_ADD, pygame.BLEND_SUB, pygame.BLEND_MULT, pygame.BLEND_MIN, pygame.BLEND_MAX,
-                      pygame.BLEND_RGB_ADD, pygame.BLEND_RGB_SUB,-1]
-print(special_flags_list[1])
-# Loop ------------------------------------------------------- #
-while True:
-    # Background --------------------------------------------- #
-    screen.fill((100, 10, 10))
 
-    # Draw circles with different special flags
-    for i, flag in enumerate(special_flags_list):
-        x = 50 + i * 40
-        y = 250
-        radius = 20
-        color = (255, 255, 255)
-        pygame.draw.circle(screen, color, (x, y), radius)
-        if flag!=-1:
-            # Draw a surface with special flags on each circle
-            circle_surf = pygame.Surface((radius * 2+8, radius * 2+8), flags=pygame.SRCALPHA)
-            pygame.draw.circle(circle_surf, (20,20,20), (radius+4, 4+radius), radius+4)
-            circle_surf.set_colorkey((0, 0, 0))
-            # circle_surf.set_alpha(100)  # Adjust transparency for better visualization
-            screen.blit(circle_surf, (x - radius-4, y - radius-4), special_flags=flag)
+def generate_circle_array(num_circles, boundary):
+    center = np.array(boundary) / 2
+    big_radius = 360
+    circles = []
 
-    # Buttons ------------------------------------------------ #
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            pygame.quit()
-            sys.exit()
-        if event.type == KEYDOWN:
-            if event.key == K_ESCAPE:
-                pygame.quit()
-                sys.exit()
+    for i in range(1, num_circles):
+        position = center + np.float64(
+            [10 * (num_circles - i) - 20 * num_circles, 11.25 * (num_circles - i) - 22.5 * num_circles])
+        velocity = np.float64([15 * (num_circles - i) / 480, 15 * (num_circles - i) / 480])
+        radius = 40 * i
+        circles.append(Circle(position, velocity, radius))
 
-    # Update ------------------------------------------------- #
-    pygame.display.update()
-    mainClock.tick(60)
+    return circles
+
+
+# Example usage:
+num_circles = 6
+boundary = (800, 600)
+circle_array = generate_circle_array(num_circles, boundary)
+
+for circle in circle_array:
+    print("Center:", circle.center, "Velocity:", circle.velocity, "Radius:", circle.radius)

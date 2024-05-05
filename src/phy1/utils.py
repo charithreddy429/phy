@@ -2,10 +2,9 @@ import numpy as np
 import random
 import pygame as p
 
-
 p.init()
 h = width, height = 1380, 746
-font = p.font.Font(None, 30)
+font = p.font.Font(None, 70)
 
 
 def debug(info, x=10, y=10, surf=None):
@@ -17,10 +16,148 @@ def debug(info, x=10, y=10, surf=None):
         surf.blit(debug_surf, debug_rect)
 
 
+def find_shortest_vector(coord1: np.ndarray, coord2: np.ndarray, boundary: np.ndarray) -> np.ndarray:
+    # Calculate the vector components for each periodic repetition of coord2
+    coord2_mod = coord2 % boundary
+
+    periodic_coords = [(x + i * boundary[0], y + j * boundary[1])
+                       for i in range(-1, 2)
+                       for j in range(-1, 2)
+                       for x, y in [coord2_mod]]
+
+    # Calculate the vectors from coord1 to each periodic repetition of coord2
+    vectors = np.array(periodic_coords) - coord1
+
+    # Calculate the lengths of the vectors
+    lengths = np.linalg.norm(vectors, axis=1)
+
+    # Find the index of the shortest vector
+    shortest_index = np.argmin(lengths)
+
+    # Return the shortest vector
+    return vectors[shortest_index]
+
+
+def draw_circle(cord1, boundary, radius):
+    """
+    Draw a circle considering boundary conditions.
+
+    Parameters:
+        screen: Pygame screen surface object.
+        cord1 (np.ndarray): Coordinates of the circle.
+        boundary (np.ndarray): Coordinates of the boundary.
+        radius (np.float64): Radius of the circle.
+    """
+    # Check if the circle is touching any wall and going out of the boundary
+    direction = walls_circle_is_out_of(cord1, boundary, radius)
+    if direction != (0, 0):
+        # Adjust the coordinates based on the direction
+        cord1_adj = cord1 - np.array(direction) * boundary
+        return cord1_adj
+    return False
+
+
+def clange(a: int | float, b: int | float, c: int | float) -> int | float:
+    if b <= a <= c:
+
+        return a
+
+    elif a < b:
+
+        return b
+
+    else:
+
+        return c
+
+
+def walls_circle_is_out_of(cord1: np.ndarray, boundary: np.ndarray, radius: np.float64) -> tuple[int, int]:
+    """
+    Identify which walls a circle with given coordinates and radius is out of.
+
+    Parameters:
+        cord1 (np.ndarray): Coordinates of the circle.
+        boundary (np.ndarray): Coordinates of the boundary. Assuming the other coordinate of the boundary is (0,0).
+        radius (np.float64): Radius of the circle.
+
+    Returns:
+        Tuple[int, int]: Tuple indicating the direction of the wall. First value is for vertical direction (1 for right, -1 for left),
+        second value is for horizontal direction (1 for top, -1 for bottom).
+        If the circle doesn't touch any wall, returns (0, 0).
+
+    # # Example usage:
+    # cord1 = np.array([3.0, 4.0], dtype=np.float64)
+    # boundary = np.array([5.0, 5.0], dtype=np.float64)
+    # radius = np.float64(2.0)
+    #
+    # print(walls_circle_is_out_of(cord1, boundary, radius))  # Output: (-1, 0) (indicating it touches the left wall)
+    #
+    """
+    direction = (0, 0)
+
+    # Calculate the distances to the boundaries
+    distance_to_top = boundary[1] - cord1[1]
+    distance_to_bottom = cord1[1]
+    distance_to_left = cord1[0]
+    distance_to_right = boundary[0] - cord1[0]
+
+    # Check if the circle touches any wall
+    if distance_to_top <= radius:
+        direction = (0, 1)
+    elif distance_to_bottom <= radius:
+        direction = (0, -1)
+    elif distance_to_left <= radius:
+        direction = (-1, 0)
+    elif distance_to_right <= radius:
+        direction = (1, 0)
+
+    return direction
+
+
+def draw_vector(screen, vector, position, color=(255, 255, 255), scale=20):
+    # Scale the vector based on the scale parameter
+    scaled_vector = vector * scale
+
+    # Calculate the end point of the vector
+    end_point = position + scaled_vector
+
+    # Draw the vector
+    p.draw.line(screen, color, position, end_point, 2)
+
+
+def set_magnitude(v: np.ndarray, x: float) -> np.ndarray:
+    """
+    Set the magnitude of a vector to a specified value.
+
+    Args:
+    - v: Input vector
+    - x: Desired magnitude
+
+    Returns:
+    - Vector with the specified magnitude
+    # Example usage:
+    v = np.array([1, 2, 3])
+    desired_magnitude = 5
+    result = set_magnitude(v, desired_magnitude)
+    print("Original vector:", v)
+    print("Vector with desired magnitude:", result)
+
+    """
+    # Normalize the vector
+    normalized_v = v / np.linalg.norm(v)
+
+    # Scale the normalized vector to the desired magnitude
+    scaled_v = normalized_v * x
+
+    return scaled_v
+
+
 random.seed(random.random())
-def rclr(t=random.random()*5):
+
+
+def rclr(t=random.random()):
     # Adjust the period and phase to change the speed and starting color
-    period = 5.0  # Adjust this value to change the speed of color transition
+    period = 1.0  # Adjust this value to change the speed of color transition
     phase_shift = 0.0  # Adjust this value to change the starting color
 
     # Calculate color components using sine function

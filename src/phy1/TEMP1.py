@@ -1,5 +1,4 @@
 from moviepy.editor import VideoFileClip, AudioFileClip, CompositeAudioClip
-from pydub import AudioSegment
 
 # Open the file in read mode
 with open("g1.txt", "r") as file:
@@ -8,10 +7,10 @@ with open("g1.txt", "r") as file:
 
     # Split the content of the file by newline character and convert each element to integer
     frames = [int(num) for num in content.strip().split('\n')]
+filename = r"output\vid2024-04-27_19-08-24.mp4"
+video_clip = VideoFileClip(filename)
 
-video_clip = VideoFileClip(r"output\vid2024-04-18_23-21-48.mp4")
-
-audio_clip = AudioFileClip("assets\sound_file.mpeg")
+audio_clip = AudioFileClip(r"assets\sound_file1.wav")
 audio_clip = audio_clip.volumex(0.8)
 
 all_audio_clips = []
@@ -31,4 +30,4 @@ concatenate_clip = CompositeAudioClip(all_audio_clips)
 
 video = video_clip.set_audio(concatenate_clip)
 
-video.write_videofile("output.mp4", codec="libx264", fps=fps)
+video.write_videofile(filename.replace(".mp4","o.mp4"), codec="libx264", fps=fps)
